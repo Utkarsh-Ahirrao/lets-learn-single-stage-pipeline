@@ -1,0 +1,48 @@
+
+trigger:
+- master
+
+pool: Jarvis
+
+stages:
+  - stage: Terraform
+    displayName: Terraform Validation and Plan
+    jobs:
+      - job: TerraformJob
+        displayName: Terraform Init, Validate and Plan
+        steps:
+          - task: TerraformTask@5
+            displayName: Terraform Init
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/Environments/Prod'
+              environmentServiceNameAzureRM: 'UtConnection'
+              backendServiceArm: 'UtConnection'
+              backendAzureRmResourceGroupName: 'rg-backend-storage'
+              backendAzureRmStorageAccountName: 'backendstorage102026'
+              backendAzureRmContainerName: 'statefile-container'
+              backendAzureRmKey: 'utstate.tf'
+
+          - task: TerraformTask@5
+            displayName: Terraform Validate
+            inputs:
+              provider: 'azurerm'
+              command: 'validate'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/Environments/Prod'
+              environmentServiceNameAzureRM: 'UtConnection'
+
+          - task: TerraformTask@5
+            displayName: Terraform Plan
+            inputs:
+              provider: 'azurerm'
+              command: 'plan'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/Environments/Prod'
+              environmentServiceNameAzureRM: 'UtConnection'
+
+          - task: TerraformTask@5
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              workingDirectory: '$(System.DefaultWorkingDirectory)/Environments/Prod'
+              environmentServiceNameAzureRM: 'UtConnection'
